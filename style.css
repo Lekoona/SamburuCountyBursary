@@ -1,0 +1,178 @@
+/* General layout */
+body {
+  background-color: #f2f2f2;
+  font-family: Arial, sans-serif;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-left {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.logo-img {
+  width: 120px; /* You can adjust this width as needed */
+  height: auto;
+  display: block;
+}
+
+
+.status-pending {
+  color: orange;
+  font-weight: bold;
+}
+
+.status-approved {
+  color: green;
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: red;
+  font-weight: bold;
+}
+
+
+
+.container {
+  background: white;
+  padding: 2rem;
+  max-width: 700px;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+h1, h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Form elements */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin: 0.5rem 0 0.2rem;
+}
+
+input, select, textarea {
+  padding: 0.6rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+textarea {
+  min-height: 80px;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #2980b9;
+  outline: none;
+}
+
+/* Buttons */
+button {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+button:hover {
+  background-color: #1c598a;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: #2980b9;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #2980b9;
+  color: white;
+}
+
+.status-pending {
+  color: orange;
+  font-weight: bold;
+}
+
+.status-approved {
+  color: green;
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: red;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+
+  input, select, textarea {
+    font-size: 0.9rem;
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    background: #fafafa;
+  }
+
+  td {
+    padding-left: 50%;
+    position: relative;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    font-weight: bold;
+  }
+}

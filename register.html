@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Applicant Registration</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Applicant Registration</h1>
+    <form id="registerForm">
+      <label for="fullName">Full Name:</label>
+      <input type="text" id="fullName" required />
+
+      <label for="idNumber">National ID Number:</label>
+      <input type="text" id="idNumber" required />
+
+      <label for="email">Email Address:</label>
+      <input type="email" id="email" required />
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" required />
+
+      <label for="confirmPassword">Confirm Password:</label>
+      <input type="password" id="confirmPassword" required />
+
+      <button type="submit">Register</button>
+    </form>
+
+    <p id="registerSuccess" style="color: green; display: none;">Registration successful! You can now <a href="login.html">login</a>.</p>
+    <p id="registerError" style="color: red; display: none;">Error: ID or Email already registered.</p>
+    <p id="passwordError" style="color: red; display: none;">Passwords do not match.</p>
+  </div>
+
+  <script>
+    const form = document.getElementById("registerForm");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const fullName = document.getElementById("fullName").value.trim();
+      const idNumber = document.getElementById("idNumber").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      const registerSuccess = document.getElementById("registerSuccess");
+      const registerError = document.getElementById("registerError");
+      const passwordError = document.getElementById("passwordError");
+
+      // Reset messages
+      registerSuccess.style.display = "none";
+      registerError.style.display = "none";
+      passwordError.style.display = "none";
+
+      // Check password match
+      if (password !== confirmPassword) {
+        passwordError.style.display = "block";
+        return;
+      }
+
+      // Get existing users from localStorage
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
+      // Check for duplicates
+      const exists = users.some(user => user.idNumber === idNumber || user.email === email);
+      if (exists) {
+        registerError.style.display = "block";
+        return;
+      }
+
+      // Create new user
+      const newUser = {
+        fullName,
+        idNumber,
+        email,
+        password, // In real systems, hash this!
+        profile: {
+          education: "",
+          contact: "",
+          documents: []
+        }
+      };
+
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+      registerSuccess.style.display = "block";
+      form.reset();
+    });
+  </script>
+</body>
+</html>

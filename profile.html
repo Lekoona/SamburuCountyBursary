@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Applicant Profile</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>My Profile</h1>
+    <form id="profileForm">
+  <label>Full Name:</label>
+  <input type="text" id="fullName" required />
+
+  <label>ID Number:</label>
+  <input type="text" id="idNumber" required />
+
+  <label>School Name:</label>
+  <input type="text" id="schoolName" required />
+
+  <label>Phone Number:</label>
+  <input type="text" id="phone" required />
+
+  <label>Proof of Identification (ID, Passport):</label>
+  <input type="file" id="idProof" accept=".jpg,.png,.pdf" />
+
+  <label>Transcript (Latest):</label>
+  <input type="file" id="transcript" accept=".jpg,.png,.pdf" />
+
+  <button type="submit">Save Profile</button>
+</form>
+
+
+    <p id="saveMessage" style="color: green; display: none;">Profile updated successfully!</p>
+
+    <br>
+    <a href="index.html">→ Proceed to Bursary Application</a>
+    <br><br>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    document.getElementById("profileForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const fullName = document.getElementById("fullName").value;
+  const idNumber = document.getElementById("idNumber").value;
+  const schoolName = document.getElementById("schoolName").value;
+  const phone = document.getElementById("phone").value;
+
+  const idProof = document.getElementById("idProof").files[0];
+  const transcript = document.getElementById("transcript").files[0];
+
+  const reader1 = new FileReader();
+  const reader2 = new FileReader();
+
+  // Wait for both files to load before saving
+  let uploads = {};
+
+  reader1.onload = function () {
+    uploads.idProof = reader1.result;
+
+    // Continue only if transcript is already loaded
+    if (!transcript || uploads.transcript !== undefined) {
+      saveProfile();
+    }
+  };
+
+  reader2.onload = function () {
+    uploads.transcript = reader2.result;
+
+    if (!idProof || uploads.idProof !== undefined) {
+      saveProfile();
+    }
+  };
+
+  if (idProof) reader1.readAsDataURL(idProof);
+  if (transcript) reader2.readAsDataURL(transcript);
+
+  if (!idProof && !transcript) {
+    saveProfile();
+  }
+
+  function saveProfile() {
+    const email = sessionStorage.getItem("applicantEmail");
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    const userIndex = users.findIndex(u => u.email === email);
+
+    if (userIndex !== -1) {
+      users[userIndex].fullName = fullName;
+      users[userIndex].idNumber = idNumber;
+      users[userIndex].schoolName = schoolName;
+      users[userIndex].phone = phone;
+
+      if (uploads.idProof !== undefined) users[userIndex].idProof = uploads.idProof;
+      if (uploads.transcript !== undefined) users[userIndex].transcript = uploads.transcript;
+
+      // 🔥 REMOVE incomeProof if it exists
+      delete users[userIndex].incomeProof;
+
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Profile saved successfully!");
+    }
+  }
+});
+
+  </script>
+</body>
+</html>

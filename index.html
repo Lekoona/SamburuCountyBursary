@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Samburu County Bursary Application</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Bursary Application</h1>
+    <form id="applicationForm">
+      <label>Full Name:</label>
+      <input type="text" id="fullName" disabled />
+
+      <label>National ID:</label>
+      <input type="text" id="idNumber" disabled />
+
+      <label>Email Address:</label>
+      <input type="email" id="email" disabled />
+
+      <label for="subCounty">Sub-County:</label>
+      <select id="subCounty" required>
+        <option value="">-- Select Sub-County --</option>
+        <option value="Samburu East">Samburu East</option>
+        <option value="Samburu West">Samburu West</option>
+        <option value="Samburu North">Samburu North</option>
+      </select>
+
+      <label for="reason">Reason for Application:</label>
+      <textarea id="reason" required placeholder="Explain your financial need..."></textarea>
+
+      <label for="amount">Amount Requested (Ksh):</label>
+      <input type="number" id="amount" required min="500" step="100" />
+
+      <button type="submit">Submit Application</button>
+    </form>
+
+    <p id="successMessage" style="color: green; display: none;">Application submitted! You will be notified when reviewed.</p>
+    <br>
+    <a href="profile.html">← Back to Profile</a>
+    <br><br>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    
+    if (sessionStorage.getItem("role") !== "applicant") {
+      window.location.href = "login.html";
+    }
+
+    const email = sessionStorage.getItem("applicantEmail");
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const user = users.find(u => u.email === email);
+
+    // Pre-fill readonly fields
+    document.getElementById("fullName").value = user.fullName;
+    document.getElementById("idNumber").value = user.idNumber;
+    document.getElementById("email").value = user.email;
+
+    // Application form
+    document.getElementById("applicationForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const subCounty = document.getElementById("subCounty").value;
+      const reason = document.getElementById("reason").value.trim();
+      const amount = parseInt(document.getElementById("amount").value);
+
+      const newApp = {
+        applicantEmail: email,
+        fullName: user.fullName,
+        idNumber: user.idNumber,
+        subCounty,
+        reason,
+        amountRequested: amount,
+        status: "Pending",
+        amountAllocated: 0,
+        submittedAt: new Date().toISOString()
+      };
+
+      let applications = JSON.parse(localStorage.getItem("applications")) || [];
+      applications.push(newApp);
+      localStorage.setItem("applications", JSON.stringify(applications));
+
+      document.getElementById("successMessage").style.display = "block";
+      document.getElementById("applicationForm").reset();
+    });
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

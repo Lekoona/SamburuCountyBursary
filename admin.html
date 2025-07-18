@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    select, button {
+      padding: 0.3rem 0.5rem;
+      margin-right: 0.5rem;
+    }
+    .status-pending {
+      color: orange;
+      font-weight: bold;
+    }
+    .status-approved {
+      color: green;
+      font-weight: bold;
+    }
+    .status-rejected {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+
+    <button onclick="logout()">Logout</button>
+
+    <h3>Filter Applications</h3>
+    <select id="filterSubCounty">
+      <option value="">-- All Sub-Counties --</option>
+      <option value="Samburu East">Samburu East</option>
+      <option value="Samburu West">Samburu West</option>
+      <option value="Samburu North">Samburu North</option>
+    </select>
+    <button onclick="renderApplications()">Apply Filter</button>
+
+    <h3>Applications</h3>
+    <table id="applicationsTable">
+      <thead>
+        <tr>
+          <th>Applicant Name</th>
+          <th>ID Number</th>
+          <th>Email</th>
+          <th>Sub-County</th>
+          <th>Reason</th>
+          <th>Requested Amount (Ksh)</th>
+          <th>Status</th>
+          <th>Allocated Amount (Ksh)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>Statistics</h3>
+    <p>Total Applications: <span id="totalApps">0</span></p>
+    <p>Pending: <span id="pendingApps">0</span></p>
+    <p>Approved: <span id="approvedApps">0</span></p>
+    <p>Rejected: <span id="rejectedApps">0</span></p>
+    <p>Total Funds Allocated (Ksh): <span id="totalFunds">0</span></p>
+  </div>
+
+  <script>
+    if (sessionStorage.getItem("role") !== "admin") {
+      window.location.href = "login.html";
+    }
+
+    const applicationsTableBody = document.querySelector("#applicationsTable tbody");
+    const filterSubCounty = document.getElementById("filterSubCounty");
+
+    function renderApplications() {
+      let applications = JSON.parse(localStorage.getItem("applications")) || [];
+
+      // Filter by sub-county
+      const filter = filterSubCounty.value;
+      if (filter) {
+        applications = applications.filter(app => app.subCounty === filter);
+      }
+
+      // Clear table
+      applicationsTableBody.innerHTML = "";
+
+      applications.forEach((app, index) => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${app.fullName}</td>
+          <td>${app.idNumber}</td>
+          <td>${app.applicantEmail}</td>
+          <td>${app.subCounty}</td>
+          <td>${app.reason}</td>
+          <td>${app.amountRequested}</td>
+          <td class="status-${app.status.toLowerCase()}">${app.status}</td>
+          <td>${app.amountAllocated || 0}</td>
+          <td>
+            ${app.status === "Pending" ? `
+              <button onclick="approve(${index})">Approve</button>
+              <button onclick="reject(${index})">Reject</button>
+            ` : app.status === "Approved" ? `
+              <button onclick="allocateFunds(${index})">Allocate Funds</button>
+            ` : ''}
+          </td>
+        `;
+        applicationsTableBody.appendChild(tr);
+      });
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const applications = JSON.parse(localStorage.getItem("applications")) || [];
+      const total = applications.length;
+      const pending = applications.filter(a => a.status === "Pending").length;
+      const approved = applications.filter(a => a.status === "Approved").length;
+      const rejected = applications.filter(a => a.status === "Rejected").length;
+      const totalFunds = applications.reduce((sum, a) => sum + (a.amountAllocated || 0), 0);
+
+      document.getElementById("totalApps").textContent = total;
+      document.getElementById("pendingApps").textContent = pending;
+      document.getElementById("approvedApps").textContent = approved;
+      document.getElementById("rejectedApps").textContent = rejected;
+      document.getElementById("totalFunds").textContent = totalFunds;
+    }
+
+    function approve(index) {
+      let applications = JSON.parse(localStorage.getItem("applications")) || [];
+      applications[index].status = "Approved";
+      localStorage.setItem("applications", JSON.stringify(applications));
+      renderApplications();
+      alert(`Application from ${applications[index].fullName} approved.`);
+    }
+
+    function reject(index) {
+      let applications = JSON.parse(localStorage.getItem("applications")) || [];
+      applications[index].status = "Rejected";
+      applications[index].amountAllocated = 0;
+      localStorage.setItem("applications", JSON.stringify(applications));
+      renderApplications();
+      alert(`Application from ${applications[index].fullName} rejected.`);
+    }
+
+    function allocateFunds(index) {
+      let applications = JSON.parse(localStorage.getItem("applications")) || [];
+      const app = applications[index];
+      let amount = prompt(`Enter amount to allocate to ${app.fullName} (Requested: Ksh ${app.amountRequested}):`, app.amountRequested);
+      amount = parseInt(amount);
+      if (!isNaN(amount) && amount >= 0) {
+        app.amountAllocated = amount;
+        applications[index] = app;
+        localStorage.setItem("applications", JSON.stringify(applications));
+        alert(`Allocated Ksh ${amount} to ${app.fullName}.`);
+        renderApplications();
+      } else {
+        alert("Invalid amount entered.");
+      }
+    }
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    // Initial render
+    renderApplications();
+  </script>
+</body>
+</html>

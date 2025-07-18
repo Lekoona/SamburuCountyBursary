@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Application Status</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Application Status</h1>
+    <div id="statusSection">
+      <!-- Filled dynamically -->
+    </div>
+  </div>
+
+  <script>
+    // Check if applicant is logged in
+    const email = sessionStorage.getItem("applicantEmail");
+
+    if (!email) {
+      alert("Please log in to view your status.");
+      window.location.href = "login.html";
+    } else {
+      const applications = JSON.parse(localStorage.getItem("applications")) || [];
+      const application = applications.find(app => app.applicantEmail === email);
+
+      const statusSection = document.getElementById("statusSection");
+
+      if (application) {
+        const status = application.status || "Pending";
+        statusSection.innerHTML = `
+          <p><strong>Name:</strong> ${application.fullName || 'Unknown'}</p>
+          <p><strong>ID Number:</strong> ${application.idNumber || 'Not Provided'}</p>
+          <p><strong>School:</strong> ${application.schoolName || 'N/A'}</p>
+          <p><strong>Status:</strong> 
+            <span class="status-${status.toLowerCase()}">${status}</span>
+          </p>
+        `;
+      } else {
+        statusSection.innerHTML = `<p>No application found for this account.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
